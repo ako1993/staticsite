@@ -1,5 +1,5 @@
 import unittest
-from blocks import markdown_to_blocks
+from blocks import markdown_to_blocks, block_to_blocktype, BlockType
 
 class TestBlocks(unittest.TestCase):
     def test_markdown_to_blocks(self):
@@ -34,3 +34,18 @@ class TestBlocks(unittest.TestCase):
              """
         blocks = markdown_to_blocks(md)
         self.assertEqual(blocks, ["This is a line","did this work?",],)
+        
+
+    def test_block_to_block_types(self):
+        block = "# heading"
+        self.assertEqual(block_to_blocktype(block), BlockType.HEADING)
+        block = "```\ncode\n```"
+        self.assertEqual(block_to_blocktype(block), BlockType.CODE)
+        block = "> quote\n> more quote"
+        self.assertEqual(block_to_blocktype(block), BlockType.QUOTE)
+        block = "- list\n- items"
+        self.assertEqual(block_to_blocktype(block), BlockType.UNORDERED_LIST)
+        block = "1. list\n2. items"
+        self.assertEqual(block_to_blocktype(block), BlockType.ORDERED_LIST)
+        block = "paragraph"
+        self.assertEqual(block_to_blocktype(block), BlockType.PARAGRAPH)
