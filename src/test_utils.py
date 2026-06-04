@@ -1,6 +1,8 @@
 import unittest
-from utils import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes
+from utils import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_html_node, text_to_children
 from textnode import TextType, TextNode
+from htmlnode import HTMLNode
+from leafnode import LeafNode
 
 class TestDelimiter(unittest.TestCase):
     def test_bold(self):
@@ -162,3 +164,42 @@ class TestTexttoTextNode(unittest.TestCase):
                                   TextNode("bold text", TextType.BOLD),
                                   TextNode(" and ", TextType.TEXT),
                                   TextNode("italic text", TextType.ITALIC)])
+class TestMarkdowntoHTMLNode(unittest.TestCase):
+
+    def test_text_to_children(self):
+        text = "this has normal _and italic text_"
+        result = text_to_children(text)
+        html_results = [node.to_html() for node in result]
+        self.assertEqual(html_results, ["this has normal ", "<i>and italic text</i>"])
+
+    def test_paragraphs(self):
+        md = """
+    This is **bolded** paragraph
+    text in a p
+    tag here
+
+    This is another paragraph with _italic_ text and `code` here
+
+    """
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+
+    def test_codeblock(self):
+            md = """
+        ```
+        This is text that _should_ remain
+        the **same** even with inline stuff
+        ```
+        """
+
+            node = markdown_to_html_node(md)
+            html = node.to_html()
+            self.assertEqual(
+                html,
+                "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+            )
